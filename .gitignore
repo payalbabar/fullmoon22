@@ -9,3 +9,11 @@ build/
 frontend/.env.local
 frontend/.env
 *.log
+
+# Temp Vite config files
+frontend/vite.config.ts.timestamp-*
+
+# Test artifacts
+contracts/lottery_test.compact
+managed/lottery_test/
+

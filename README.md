@@ -26,6 +26,7 @@ This lottery uses **Compact zero-knowledge smart contracts** on Midnight Network
 | **Deployer Address** | `mn_preprod_1cead884688b14f4a0bd0741b8554ee4e79e0fb` |
 | **Explorer** | [Midnight Preprod Explorer](https://explorer.preprod.midnight.network/) |
 | **Live Demo** | [midnight-lottery.vercel.app](https://midnight-lottery.vercel.app/) |
+| **Demo Video** | [Watch Demo Video](YOUR_DEMO_VIDEO_LINK_HERE) |
 
 ---
 
