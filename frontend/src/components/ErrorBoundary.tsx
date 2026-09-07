@@ -1,6 +1,6 @@
 import React from 'react';
 import { captureError } from '../lib/sentry';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Shield } from 'lucide-react';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -50,57 +50,83 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
           alignItems: 'center',
           justifyContent: 'center',
           background: 'var(--bg-primary)',
+          backgroundImage:
+            'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(239, 68, 68, 0.12) 0%, transparent 60%)',
           padding: '2rem',
         }}
       >
         <div
           className="card"
           style={{
-            maxWidth: '480px',
+            maxWidth: '520px',
             width: '100%',
             textAlign: 'center',
-            padding: '2.5rem',
+            padding: '3rem 2.5rem',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            boxShadow: '0 20px 60px rgba(239, 68, 68, 0.18)',
+            background: 'rgba(11, 15, 29, 0.95)',
           }}
         >
+          {/* Error Icon */}
           <div
             style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '16px',
-              background: 'rgba(239, 68, 68, 0.15)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
+              width: '74px',
+              height: '74px',
+              borderRadius: '22px',
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 1.5rem auto',
             }}
           >
-            <AlertTriangle size={32} color="#ef4444" />
+            <AlertTriangle size={38} color="#ef4444" />
           </div>
 
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.65rem', fontWeight: 700, marginBottom: '0.75rem', color: '#ffffff' }}>
             Something went wrong
           </h2>
 
-          <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-            An unexpected error occurred in the application. Your wallet and funds are not affected.
-            Please reload the page to continue.
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem', lineHeight: 1.65, fontSize: '0.96rem' }}>
+            An unexpected error occurred in the application view.
           </p>
 
+          {/* Safety Notice */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              background: 'rgba(16, 185, 129, 0.08)',
+              border: '1px solid rgba(16, 185, 129, 0.28)',
+              borderRadius: '12px',
+              padding: '0.75rem 1.1rem',
+              marginBottom: '1.75rem',
+              fontSize: '0.88rem',
+              color: '#34d399',
+            }}
+          >
+            <Shield size={16} />
+            <span>Your wallet and on-chain funds are safe and untouched.</span>
+          </div>
+
+          {/* Error Details */}
           {this.state.error && (
             <div
               style={{
-                background: 'rgba(0,0,0,0.3)',
+                background: 'rgba(0, 0, 0, 0.45)',
                 border: '1px solid var(--border-color)',
-                borderRadius: '10px',
-                padding: '0.75rem',
-                marginBottom: '1.5rem',
+                borderRadius: '12px',
+                padding: '0.95rem',
+                marginBottom: '1.85rem',
                 textAlign: 'left',
               }}
             >
               <p
                 className="font-mono"
-                style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-word' }}
+                style={{ fontSize: '0.76rem', color: 'var(--text-muted)', wordBreak: 'break-word', lineHeight: 1.55 }}
               >
                 {this.state.error.message}
               </p>
@@ -110,10 +136,10 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
           <button
             onClick={this.handleReset}
             className="btn btn-primary"
-            style={{ gap: '0.5rem', width: '100%' }}
+            style={{ gap: '0.55rem', width: '100%', padding: '0.95rem', fontSize: '1rem', fontWeight: 700 }}
           >
-            <RefreshCw size={16} />
-            Reload Application
+            <RefreshCw size={17} />
+            <span>Reload Application</span>
           </button>
         </div>
       </div>

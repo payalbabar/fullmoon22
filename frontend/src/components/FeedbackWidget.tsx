@@ -6,19 +6,6 @@ type FeedbackCategory = 'Bug' | 'UX' | 'Feature Request' | 'General';
 
 const CATEGORIES: FeedbackCategory[] = ['Bug', 'UX', 'Feature Request', 'General'];
 
-/**
- * Feedback submission endpoint.
- *
- * Configure via environment variable:
- *   VITE_FEEDBACK_ENDPOINT=https://your-api.com/feedback
- *
- * If not set, falls back to a mailto: link with pre-filled subject/body.
- *
- * Expected POST body (JSON):
- *   { rating: number, category: string, comment: string, timestamp: string }
- *
- * Expected response: { ok: true } or HTTP 2xx
- */
 const FEEDBACK_ENDPOINT = import.meta.env.VITE_FEEDBACK_ENDPOINT || '';
 const FEEDBACK_EMAIL = import.meta.env.VITE_FEEDBACK_EMAIL || 'feedback@example.com';
 
@@ -39,7 +26,6 @@ export const FeedbackWidget: React.FC = () => {
 
   const handleClose = () => {
     setOpen(false);
-    // Reset after close
     setTimeout(() => {
       setRating(0);
       setHoveredRating(0);
@@ -69,7 +55,6 @@ export const FeedbackWidget: React.FC = () => {
 
     try {
       if (FEEDBACK_ENDPOINT) {
-        // POST to configured endpoint
         const res = await fetch(FEEDBACK_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -79,7 +64,6 @@ export const FeedbackWidget: React.FC = () => {
           throw new Error(`Server responded with ${res.status}`);
         }
       } else {
-        // Fallback: open mailto
         const subject = encodeURIComponent(`[Midnight Lottery Feedback] ${category} — ${rating}/5 stars`);
         const body = encodeURIComponent(
           `Rating: ${rating}/5\nCategory: ${category}\n\nComment:\n${comment || '(no comment)'}\n\nTimestamp: ${payload.timestamp}`
@@ -98,108 +82,136 @@ export const FeedbackWidget: React.FC = () => {
 
   return (
     <>
-      {/* Floating trigger button */}
+      {/* Floating Trigger Button */}
       <button
         onClick={handleOpen}
-        title="Share feedback"
+        title="Share your feedback"
+        aria-label="Share your feedback"
         style={{
           position: 'fixed',
-          bottom: '1.5rem',
-          right: '1.5rem',
-          width: '48px',
-          height: '48px',
+          bottom: '1.75rem',
+          right: '1.75rem',
+          width: '52px',
+          height: '52px',
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #7952ff 0%, #4f46e5 100%)',
-          border: 'none',
+          background: 'var(--accent-gradient)',
+          border: '1px solid rgba(255, 255, 255, 0.25)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 4px 20px rgba(121, 82, 255, 0.4)',
-          zIndex: 150,
-          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          boxShadow: '0 6px 25px rgba(139, 92, 246, 0.5)',
+          zIndex: 1500,
+          transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.1)';
-          (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 28px rgba(121, 82, 255, 0.6)';
+          (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.08) translateY(-2px)';
+          (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 10px 30px rgba(139, 92, 246, 0.7)';
         }}
         onMouseLeave={(e) => {
           (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
-          (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 20px rgba(121, 82, 255, 0.4)';
+          (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 25px rgba(139, 92, 246, 0.5)';
         }}
       >
-        <MessageSquare size={20} color="#ffffff" />
+        <MessageSquare size={22} color="#ffffff" />
       </button>
 
-      {/* Modal overlay */}
+      {/* Modal Overlay */}
       {open && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(10, 11, 16, 0.7)',
-            backdropFilter: 'blur(8px)',
+            background: 'rgba(6, 8, 15, 0.75)',
+            backdropFilter: 'blur(12px)',
             display: 'flex',
             alignItems: 'flex-end',
             justifyContent: 'flex-end',
-            padding: '1.5rem',
-            zIndex: 160,
+            padding: '1.75rem',
+            zIndex: 1600,
           }}
           onClick={(e) => {
             if (e.target === e.currentTarget) handleClose();
           }}
+          role="dialog"
+          aria-modal="true"
         >
           <div
-            className="card"
+            className="card card-glowing-purple"
             style={{
-              width: '340px',
+              width: '380px',
               maxWidth: '100%',
-              padding: '1.75rem',
+              padding: '1.85rem',
+              background: 'rgba(11, 15, 29, 0.96)',
             }}
           >
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <MessageSquare size={18} color="var(--accent-purple)" />
-                <span style={{ fontWeight: 600, fontSize: '1rem' }}>Share Feedback</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+                <MessageSquare size={18} color="var(--accent-purple-light)" />
+                <span style={{ fontWeight: 700, fontSize: '1.1rem', color: '#ffffff' }}>Share Feedback</span>
               </div>
               <button
                 onClick={handleClose}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  padding: '0.35rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+                title="Close feedback"
+                aria-label="Close feedback"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
             {submitted ? (
-              /* Success state */
-              <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-                <CheckCircle2 size={40} color="#10b981" style={{ margin: '0 auto 1rem auto' }} />
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+              /* Success State */
+              <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
+                <div
+                  style={{
+                    width: '58px',
+                    height: '58px',
+                    borderRadius: '18px',
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 1rem auto',
+                  }}
+                >
+                  <CheckCircle2 size={32} color="#10b981" />
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.4rem', color: '#ffffff' }}>
                   Thank you!
                 </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', lineHeight: 1.6 }}>
-                  Your feedback helps improve the Midnight Privacy Lottery for everyone.
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                  Your feedback directly improves the Midnight Privacy Lottery dApp.
                 </p>
                 <button
                   onClick={handleClose}
                   className="btn btn-secondary"
-                  style={{ marginTop: '1.25rem', width: '100%' }}
+                  style={{ marginTop: '1.5rem', width: '100%' }}
                 >
-                  Close
+                  Done
                 </button>
               </div>
             ) : (
               /* Form */
               <>
-                {/* Star rating */}
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                  How would you rate your experience?
+                  How is your experience?
                 </p>
-                <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', gap: '0.45rem', marginBottom: '1.25rem' }}>
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
+                      type="button"
                       onClick={() => setRating(star)}
                       onMouseEnter={() => setHoveredRating(star)}
                       onMouseLeave={() => setHoveredRating(0)}
@@ -209,34 +221,36 @@ export const FeedbackWidget: React.FC = () => {
                         cursor: 'pointer',
                         padding: '0.2rem',
                         transition: 'transform 0.15s ease',
-                        transform: hoveredRating >= star ? 'scale(1.2)' : 'scale(1)',
+                        transform: (hoveredRating || rating) >= star ? 'scale(1.15)' : 'scale(1)',
                       }}
+                      aria-label={`${star} star rating`}
                     >
                       <Star
                         size={24}
                         fill={(hoveredRating || rating) >= star ? '#f59e0b' : 'transparent'}
-                        color={(hoveredRating || rating) >= star ? '#f59e0b' : 'var(--border-color)'}
+                        color={(hoveredRating || rating) >= star ? '#f59e0b' : 'rgba(255, 255, 255, 0.18)'}
                       />
                     </button>
                   ))}
                 </div>
 
-                {/* Category */}
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
                   Category
                 </p>
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
                   {CATEGORIES.map((cat) => (
                     <button
                       key={cat}
+                      type="button"
                       onClick={() => setCategory(cat)}
                       style={{
-                        padding: '0.3rem 0.75rem',
+                        padding: '0.38rem 0.8rem',
                         borderRadius: '9999px',
                         border: `1px solid ${category === cat ? 'var(--accent-purple)' : 'var(--border-color)'}`,
-                        background: category === cat ? 'rgba(121, 82, 255, 0.15)' : 'transparent',
-                        color: category === cat ? '#b096ff' : 'var(--text-muted)',
+                        background: category === cat ? 'rgba(139, 92, 246, 0.22)' : 'rgba(255, 255, 255, 0.03)',
+                        color: category === cat ? '#ffffff' : 'var(--text-muted)',
                         fontSize: '0.8rem',
+                        fontWeight: 600,
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                       }}
@@ -246,22 +260,21 @@ export const FeedbackWidget: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Comment */}
                 <textarea
-                  placeholder="Optional comment..."
+                  placeholder="Tell us what you think or report an issue..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   maxLength={500}
                   rows={3}
                   className="input-field"
-                  style={{ resize: 'none', marginBottom: '0.5rem', fontSize: '0.875rem' }}
+                  style={{ resize: 'none', marginBottom: '0.35rem', fontSize: '0.88rem' }}
                 />
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'right', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                   {comment.length}/500
-                </p>
+                </div>
 
                 {error && (
-                  <p style={{ color: 'var(--error-red)', fontSize: '0.825rem', marginBottom: '0.75rem' }}>
+                  <p style={{ color: 'var(--accent-rose)', fontSize: '0.825rem', marginBottom: '0.75rem' }}>
                     {error}
                   </p>
                 )}
@@ -270,23 +283,15 @@ export const FeedbackWidget: React.FC = () => {
                   onClick={handleSubmit}
                   disabled={submitting}
                   className="btn btn-primary"
-                  style={{ width: '100%', gap: '0.5rem' }}
+                  style={{ width: '100%', gap: '0.55rem' }}
                 >
-                  {submitting ? (
-                    'Submitting...'
-                  ) : (
+                  {submitting ? 'Submitting...' : (
                     <>
                       <Send size={15} />
-                      Submit Feedback
+                      <span>Send Feedback</span>
                     </>
                   )}
                 </button>
-
-                {!FEEDBACK_ENDPOINT && (
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.75rem' }}>
-                    Opens your email client (no backend configured)
-                  </p>
-                )}
               </>
             )}
           </div>

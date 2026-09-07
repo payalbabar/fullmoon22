@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Ticket, Trophy, Wallet, ArrowRight, X, Lock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Shield, Ticket, Trophy, Wallet, X, Lock, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { trackEvent } from '../lib/analytics';
 
 const STORAGE_KEY = 'midnight_lottery_onboarding_complete';
@@ -13,10 +13,10 @@ interface OnboardingStep {
 
 const steps: OnboardingStep[] = [
   {
-    icon: <Shield size={40} color="#7952ff" />,
+    icon: <Shield size={40} color="#8b5cf6" />,
     title: 'Welcome to Midnight Privacy Lottery',
     description:
-      'A fully decentralized, privacy-preserving lottery built on Midnight Network. Your identity stays hidden — only a cryptographic commitment is stored on-chain.',
+      'A fully decentralized, privacy-preserving lottery built on Midnight Network. Your identity stays completely hidden — only a zero-knowledge commitment is stored on-chain.',
     highlight: 'Zero-Knowledge. Fully On-Chain.',
   },
   {
@@ -37,15 +37,15 @@ const steps: OnboardingStep[] = [
     icon: <Wallet size={40} color="#f59e0b" />,
     title: 'Connect Your Wallet',
     description:
-      'You need the 1AM Wallet browser extension to interact with Midnight Network. Install it from the official Midnight Network website, switch to Preview network, and connect using the button in the top right.',
-    highlight: 'Only 1AM Wallet supports Midnight DApp Connector.',
+      'Use Lace Wallet or 1AM Wallet browser extension to interact with Midnight Network. Switch to the Preprod network and connect using the button in the top right.',
+    highlight: 'Midnight DApp Connector API v4 Compatible.',
   },
   {
-    icon: <Trophy size={40} color="#7952ff" />,
+    icon: <Trophy size={40} color="#8b5cf6" />,
     title: "You're Ready to Play",
     description:
       "Once your wallet is connected: click 'Buy Ticket' to enter the lottery, wait for the draw, and if you win — click 'Claim Prize' to verify your ZK ticket proof and receive the pot.",
-    highlight: 'All transactions happen live on Midnight Preview Network.',
+    highlight: 'All transactions happen live on Midnight Preprod.',
   },
 ];
 
@@ -59,7 +59,27 @@ export const OnboardingModal: React.FC = () => {
       setVisible(true);
       trackEvent('onboarding_started');
     }
+
+    const handleOpenEvent = () => {
+      setStep(0);
+      setVisible(true);
+    };
+
+    window.addEventListener('open-onboarding', handleOpenEvent);
+    return () => window.removeEventListener('open-onboarding', handleOpenEvent);
   }, []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!visible) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleSkip();
+      if (e.key === 'ArrowRight' && step < steps.length - 1) setStep((s) => s + 1);
+      if (e.key === 'ArrowLeft' && step > 0) setStep((s) => s - 1);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [visible, step]);
 
   const handleNext = () => {
     if (step < steps.length - 1) {
@@ -95,105 +115,121 @@ export const OnboardingModal: React.FC = () => {
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(10, 11, 16, 0.88)',
-        backdropFilter: 'blur(12px)',
+        background: 'rgba(6, 8, 15, 0.88)',
+        backdropFilter: 'blur(20px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 200,
-        padding: '1rem',
+        zIndex: 2000,
+        padding: '1.25rem',
       }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleSkip();
+      }}
+      role="dialog"
+      aria-modal="true"
     >
       <div
-        className="card"
+        className="card card-glowing-purple"
         style={{
-          maxWidth: '520px',
+          maxWidth: '560px',
           width: '100%',
           padding: '2.5rem',
           position: 'relative',
-          animation: 'none',
+          background: 'rgba(11, 15, 29, 0.96)',
         }}
       >
-        {/* Close / Skip */}
+        {/* Close Button */}
         <button
           onClick={handleSkip}
           style={{
             position: 'absolute',
             top: '1.25rem',
             right: '1.25rem',
-            background: 'none',
-            border: 'none',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '10px',
             color: 'var(--text-muted)',
             cursor: 'pointer',
-            padding: '0.25rem',
+            padding: '0.45rem',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.16s ease',
           }}
-          title="Skip onboarding"
+          title="Close guide (Esc)"
+          aria-label="Close guide"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
-        {/* Step indicator */}
-        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '2rem' }}>
+        {/* Step Progress Indicators */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
           {steps.map((_, i) => (
             <div
               key={i}
               style={{
-                height: '3px',
+                height: '4px',
                 flex: 1,
                 borderRadius: '2px',
-                background: i <= step ? 'var(--accent-purple)' : 'var(--border-color)',
-                transition: 'background 0.3s ease',
+                background: i <= step ? 'var(--accent-gradient)' : 'rgba(255, 255, 255, 0.08)',
+                boxShadow: i <= step ? '0 0 8px rgba(139, 92, 246, 0.4)' : 'none',
+                transition: 'all 0.3s ease',
               }}
             />
           ))}
         </div>
 
-        {/* Icon */}
+        {/* Step Icon */}
         <div
           style={{
-            width: '72px',
-            height: '72px',
-            borderRadius: '20px',
-            background: 'rgba(121, 82, 255, 0.1)',
-            border: '1px solid rgba(121, 82, 255, 0.25)',
+            width: '76px',
+            height: '76px',
+            borderRadius: '22px',
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.18) 0%, rgba(0, 242, 254, 0.1) 100%)',
+            border: '1px solid rgba(139, 92, 246, 0.35)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: '1.5rem',
+            boxShadow: '0 10px 30px rgba(139, 92, 246, 0.25)',
           }}
         >
           {current.icon}
         </div>
 
         {/* Content */}
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '0.75rem', lineHeight: 1.3 }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem', lineHeight: 1.25, color: '#ffffff' }}>
           {current.title}
         </h2>
-        <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '1.25rem' }}>
+        
+        <p style={{ color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: '1.35rem', fontSize: '0.96rem' }}>
           {current.description}
         </p>
 
         {current.highlight && (
           <div
             style={{
-              background: 'rgba(121, 82, 255, 0.1)',
-              border: '1px solid rgba(121, 82, 255, 0.25)',
-              borderRadius: '10px',
-              padding: '0.75rem 1rem',
+              background: 'rgba(139, 92, 246, 0.12)',
+              border: '1px solid rgba(139, 92, 246, 0.32)',
+              borderRadius: '12px',
+              padding: '0.8rem 1.15rem',
               marginBottom: '2rem',
-              fontSize: '0.875rem',
-              color: '#b096ff',
-              fontWeight: 500,
+              fontSize: '0.88rem',
+              color: 'var(--accent-purple-light)',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.55rem',
             }}
           >
-            {current.highlight}
+            <Sparkles size={16} color="var(--accent-cyan)" />
+            <span>{current.highlight}</span>
           </div>
         )}
 
-        {/* Navigation */}
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        {/* Navigation Buttons */}
+        <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center' }}>
           {step > 0 && (
             <button
               onClick={handleBack}
@@ -201,23 +237,23 @@ export const OnboardingModal: React.FC = () => {
               style={{ gap: '0.4rem', flex: '0 0 auto' }}
             >
               <ChevronLeft size={16} />
-              Back
+              <span>Back</span>
             </button>
           )}
 
           <button
             onClick={handleNext}
             className="btn btn-primary"
-            style={{ gap: '0.5rem', flex: 1 }}
+            style={{ gap: '0.55rem', flex: 1, fontWeight: 700 }}
           >
             {isLast ? (
               <>
-                Start Playing
+                <span>Start Playing</span>
                 <Trophy size={16} />
               </>
             ) : (
               <>
-                Next
+                <span>Next Step</span>
                 <ChevronRight size={16} />
               </>
             )}
@@ -225,8 +261,8 @@ export const OnboardingModal: React.FC = () => {
         </div>
 
         {/* Step counter */}
-        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          Step {step + 1} of {steps.length}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.35rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          <span>Step {step + 1} of {steps.length}</span>
           {step < steps.length - 1 && (
             <button
               onClick={handleSkip}
@@ -235,7 +271,6 @@ export const OnboardingModal: React.FC = () => {
                 border: 'none',
                 color: 'var(--text-muted)',
                 cursor: 'pointer',
-                marginLeft: '1rem',
                 fontSize: '0.8rem',
                 textDecoration: 'underline',
               }}
@@ -243,7 +278,7 @@ export const OnboardingModal: React.FC = () => {
               Skip tour
             </button>
           )}
-        </p>
+        </div>
       </div>
     </div>
   );
