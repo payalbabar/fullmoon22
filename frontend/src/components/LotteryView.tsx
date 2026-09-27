@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Ticket, 
   Trophy, 
@@ -24,6 +24,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LotteryContract } from '../contract';
 import { fetchLiveIndexerState, ContractIndexerState } from '../indexer';
 import { trackEvent } from '../lib/analytics';
+import { usePrivateState } from '../hooks/usePrivateState';
 
 interface LotteryViewProps {
   isConnected: boolean;
@@ -39,8 +40,15 @@ export const LotteryView: React.FC<LotteryViewProps> = ({ isConnected, address, 
   const [contract] = useState(() => new LotteryContract(1000000n));
   const [provingAction, setProvingAction] = useState<string | null>(null);
   const [lastTxId, setLastTxId] = useState<string | null>(null);
-  const [userHasTicket, setUserHasTicket] = useState(false);
-  const [userCommitment, setUserCommitment] = useState<string | null>(null);
+  const { activeTicket, hasTicket: userHasTicket, storeTicket, clearTicket, verifyOwnership } = usePrivateState();
+  const userCommitment = activeTicket?.commitment || null;
+
+  // Auto-wipe ephemeral private witness on wallet disconnect
+  useEffect(() => {
+    if (!isConnected) {
+      clearTicket();
+    }
+  }, [isConnected, clearTicket]);
 
   // Copy feedback states
   const [copiedContract, setCopiedContract] = useState(false);
@@ -92,7 +100,7 @@ export const LotteryView: React.FC<LotteryViewProps> = ({ isConnected, address, 
           txId = submittedTx.id || txId;
         }
       }
-      return { commitment: res.commitment, txId };
+      return { commitment: res.commitment, txId, secretWitness: runtimePrivateWitness };
     },
     onMutate: async () => {
       // Optimistic Update
@@ -111,8 +119,7 @@ export const LotteryView: React.FC<LotteryViewProps> = ({ isConnected, address, 
     onSuccess: (data) => {
       trackEvent('lottery_entry_confirmed', { ticket_count: 1 });
       setLastTxId(data.txId);
-      setUserHasTicket(true);
-      setUserCommitment(data.commitment);
+      storeTicket(data.secretWitness, data.commitment, ledgerState.round_id);
       queryClient.invalidateQueries({ queryKey: ['indexerState', contractAddress] });
     },
     onError: (err: any, _variables, context) => {
