@@ -32,7 +32,7 @@ interface LotteryViewProps {
 }
 
 export const LotteryView: React.FC<LotteryViewProps> = ({ isConnected, address, walletApi }) => {
-  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0x0200325b543c46b160e2802c323d868144e6985589643dc64f791a2fa8c7';
+  const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS || '0x02003b516506eba484031a1388f7631708d066d6c23cb8d36f8c88cfb191';
   const indexerUrl = import.meta.env.VITE_INDEXER_URL || 'https://indexer.preprod.midnight.network';
   const queryClient = useQueryClient();
 
