@@ -91,4 +91,56 @@ describe('Decentralized Lottery Compact Contract Unit Tests', () => {
     expect(result.commitment).toHaveLength(64);
     expect(preprodContract.state.ticket_count).toBe(1);
   });
+
+  it('(e) Multi-Participant Privacy & Fairness - Multiple entries with different salts produce distinct commitments and only the selected winner can claim', () => {
+    const participants = [
+      { id: 'Alice', salt: 'alice_secret_random_seed_101' },
+      { id: 'Bob', salt: 'bob_secret_random_seed_202' },
+      { id: 'Charlie', salt: 'charlie_secret_random_seed_303' },
+    ];
+
+    // All participants buy tickets
+    const commitments = participants.map((p) => contract.deposit_entry(p.salt).commitment);
+
+    expect(contract.state.ticket_count).toBe(3);
+    expect(contract.state.pot_balance).toBe(3000000n);
+
+    // Verify all commitments are unique
+    const uniqueCommitments = new Set(commitments);
+    expect(uniqueCommitments.size).toBe(3);
+
+    // Draw Bob (index 1) as winner
+    contract.draw_winner(1, 'vrf_reveal_round_1');
+    expect(contract.state.winning_index).toBe(1);
+    expect(contract.state.winning_commitment).toBe(commitments[1]);
+
+    // Alice cannot claim
+    expect(() => contract.claim_prize(participants[0].salt)).toThrow('Invalid ticket secret for prize claim');
+
+    // Charlie cannot claim
+    expect(() => contract.claim_prize(participants[2].salt)).toThrow('Invalid ticket secret for prize claim');
+
+    // Bob successfully claims
+    const claim = contract.claim_prize(participants[1].salt);
+    expect(claim.success).toBe(true);
+    expect(contract.state.pot_balance).toBe(0n);
+  });
+
+  it('(f) Binary / Uint8Array Salt Compatibility - Supports raw cryptographic byte arrays as private witness', () => {
+    const rawSalt = new Uint8Array(32);
+    rawSalt.fill(0x42);
+
+    const deposit = contract.deposit_entry(rawSalt);
+    expect(deposit.commitment).toHaveLength(64);
+
+    contract.draw_winner(0, 'vrf_entropy');
+    const claim = contract.claim_prize(rawSalt);
+    expect(claim.success).toBe(true);
+  });
+
+  it('(g) Circuit Preconditions - Rejects zero or negative ticket prices', () => {
+    const invalidContract = new LotteryContract(0n);
+    expect(() => invalidContract.deposit_entry('test_salt')).toThrow('Invalid ticket price');
+  });
 });
+
