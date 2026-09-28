@@ -10,7 +10,7 @@ describe('Lace DApp Connector & Midnight Utility Tests', () => {
   describe('formatMidnightAddress', () => {
     it('truncates standard Preprod user address with ellipsis', () => {
       const addr = 'mn_preprod_1cead884688b14f4a0bd0741b8554ee4e79e0fb';
-      expect(formatMidnightAddress(addr, 10, 6)).toBe('mn_preprod...9e0fb');
+      expect(formatMidnightAddress(addr, 10, 6)).toBe('mn_preprod...79e0fb');
     });
 
     it('returns empty string on null or undefined input', () => {
