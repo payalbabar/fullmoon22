@@ -31,7 +31,7 @@ export interface IndexerFetchOptions {
  */
 export async function fetchLiveIndexerState(
   contractAddress: string,
-  indexerUrl: string = import.meta.env.VITE_INDEXER_URL || 'http://localhost:8088',
+  indexerUrl: string = (import.meta as any)?.env?.VITE_INDEXER_URL || 'http://localhost:8088',
   options: IndexerFetchOptions = {}
 ): Promise<ContractIndexerState> {
   const { retries = 2, timeoutMs = 8000 } = options;

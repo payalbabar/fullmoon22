@@ -1,6 +1,6 @@
 import { getNetworkConfig } from './network.js';
 import { getWalletState } from './wallet.js';
-import { LotteryContract } from '../managed/lottery/contract/index.js';
+import { LotteryContract } from '../frontend/src/contract.js';
 
 export function setupEnvironment(networkName: string = 'preview') {
   const config = getNetworkConfig(networkName);

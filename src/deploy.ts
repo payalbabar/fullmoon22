@@ -1,6 +1,6 @@
 import { getNetworkConfig } from './network.js';
 import { getWalletState } from './wallet.js';
-import { LotteryContract } from '../managed/lottery/contract/index.js';
+import { LotteryContract } from '../frontend/src/contract.js';
 import { createHash } from 'crypto';
 
 export async function deployContract(networkName: string = 'preview'): Promise<string> {

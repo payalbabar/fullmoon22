@@ -1,4 +1,4 @@
-import { LotteryContract, computeCommitment } from '../managed/lottery/contract/index.js';
+import { LotteryContract, computeCommitment } from '../frontend/src/contract.js';
 import { getWalletState } from './wallet.js';
 
 async function runCli() {
